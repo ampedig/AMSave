@@ -73,29 +73,80 @@ export default defineEventHandler(async (event) => {
       }
     } else if (platform === 'youtube') {
       try {
-        const { default: youtubedl } = await import('youtube-dl-exec')
-        const res = await youtubedl(url, {
-          dumpSingleJson: true,
-          noWarnings: true,
-          preferFreeFormats: true,
-          noCheckCertificates: true
-        });
+        let videoId = ''
+        const ytMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/shorts\/)([a-zA-Z0-9_-]{11})/)
+        if (ytMatch) videoId = ytMatch[1]
         
-        if (res) {
-          title = res.title || title;
-          thumbnail = res.thumbnail || 'https://placehold.co/400x600/ff0000/ffffff?text=YouTube';
-          
-          let bestFormat = res.formats?.slice().reverse().find((f: any) => f.ext === 'mp4' && f.vcodec !== 'none' && f.acodec !== 'none') || res.formats?.slice().reverse().find((f: any) => f.ext === 'mp4');
-          downloadUrl = res.url || (bestFormat ? bestFormat.url : '');
-          
-          let bestAudio = res.formats?.slice().reverse().find((f: any) => f.ext === 'm4a' || (f.acodec !== 'none' && f.vcodec === 'none'));
-          if (bestAudio) audioUrl = bestAudio.url || '';
-        } else {
-           return { status: false, message: 'Tidak dapat menemukan video YouTube tersebut.' }
+        if (!videoId) {
+          return { status: false, message: 'URL YouTube tidak valid. Pastikan berisi link video yang benar.' }
         }
+
+        try {
+          const oembed = await fetch(`https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${videoId}&format=json`) // Get metadata
+          if (oembed.ok) {
+            const meta = await oembed.json()
+            title = meta.title || title
+          }
+        } catch (_) {}
+
+        thumbnail = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`
+
+        try {
+          // Gunakan Cobalt API tanpa dependensi binary yt-dlp
+          const cobaltRes = await fetch('https://api.cobalt.tools/api/json', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Accept': 'application/json'
+            },
+            body: JSON.stringify({
+              url: `https://www.youtube.com/watch?v=${videoId}`,
+              vCodec: 'h264',
+              vQuality: '720',
+              aFormat: 'mp3',
+              isAudioOnly: false
+            })
+          })
+          
+          if (cobaltRes.ok) {
+            const cobaltData = await cobaltRes.json()
+            if (cobaltData.status === 'stream' || cobaltData.status === 'redirect') {
+              downloadUrl = cobaltData.url || ''
+            } else if (cobaltData.status === 'picker' && cobaltData.picker) {
+              downloadUrl = cobaltData.picker[0]?.url || ''
+            }
+          }
+        } catch (cobaltErr) {
+          console.error('Cobalt API error:', cobaltErr)
+        }
+
+        if (!downloadUrl) {
+          try {
+            const audioRes = await fetch('https://api.cobalt.tools/api/json', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+              body: JSON.stringify({
+                url: `https://www.youtube.com/watch?v=${videoId}`,
+                isAudioOnly: true,
+                aFormat: 'mp3'
+              })
+            })
+            if (audioRes.ok) {
+              const audioData = await audioRes.json()
+              if (audioData.url) {
+                audioUrl = audioData.url
+              }
+            }
+          } catch (_) {}
+        }
+
+        if (!downloadUrl && !audioUrl) {
+          return { status: false, message: 'Maaf, video YouTube ini tidak dapat diunduh saat ini.' }
+        }
+
       } catch (err) {
-        console.error("YouTube Error", err)
-        return { status: false, message: 'Gagal mengunduh URL YouTube, video mungkin private atau tidak valid.' }
+        console.error('YouTube Error:', err)
+        return { status: false, message: 'Gagal memproses URL YouTube.' }
       }
     } else {
       return { status: false, message: 'Platform tidak didukung' }

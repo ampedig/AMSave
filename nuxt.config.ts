@@ -15,10 +15,9 @@ export default defineNuxtConfig({
       ],
       link: [
         { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
-        { rel: 'stylesheet', href: 'https://fa.masum.my.id/6.7.2/css/all.css' },
         { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
         { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: '' },
-        { rel: 'stylesheet', href: 'https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap' }
+        { rel: 'stylesheet', href: 'https://fa.masum.my.id/6.7.2/css/all.css' }
       ]
     }
   },
@@ -32,7 +31,7 @@ export default defineNuxtConfig({
       name: 'AMSave Downloader',
       short_name: 'AMSave',
       description: 'Download Video & Foto dari IG, TikTok, FB',
-      theme_color: '#6366f1',
+      theme_color: '#5B84d4',
       icons: [
         {
           src: 'icons/icon-192x192.png',
