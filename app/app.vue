@@ -85,18 +85,21 @@ const platformLabel = (id: string) => {
 const bannerSlides = [
   {
     id: 1,
-    label: "Ruang Iklan 1",
-    sub: "Hubungi kami untuk pasang iklan di sini",
+    imgUrl: "https://placehold.co/800x130/10b981/FFFFFF?text=Iklan+1",
+    alt: "Iklan 1",
+    link: "https://ampedig.com",
   },
   {
     id: 2,
-    label: "Ruang Iklan 2",
-    sub: "Jangkau ribuan pengguna AMSave setiap hari",
+    imgUrl: "https://placehold.co/800x130/10b981/FFFFFF?text=Iklan+2",
+    alt: "Iklan 2",
+    link: "https://ampedig.com",
   },
   {
     id: 3,
-    label: "Ruang Iklan 3",
-    sub: "Promosikan layanan topup & produk digitalmu",
+    imgUrl: "https://placehold.co/800x130/10b981/FFFFFF?text=Iklan+3",
+    alt: "Iklan 3",
+    link: "https://ampedig.com",
   },
 ];
 const activeBanner = ref(0);
@@ -154,13 +157,13 @@ onMounted(() => {
               v-show="activeBanner === slide.id - 1"
               class="banner-slide"
             >
-              <div class="banner-placeholder">
-                <i class="fa-regular fa-rectangle-ad"></i>
-                <div>
-                  <strong>{{ slide.label }}</strong>
-                  <span>{{ slide.sub }}</span>
-                </div>
-              </div>
+              <a :href="slide.link" target="_blank" rel="noopener noreferrer" class="banner-link">
+                <img
+                  :src="slide.imgUrl"
+                  :alt="slide.alt"
+                  class="banner-img"
+                />
+              </a>
             </div>
           </transition-group>
         </div>
@@ -542,41 +545,26 @@ onMounted(() => {
   inset: 0;
 }
 
-.banner-placeholder {
+.banner-link {
+  display: block;
   width: 100%;
   height: 130px;
-  background: linear-gradient(135deg, var(--primary-light) 0%, #ddf0f7 100%);
-  border: 1.5px dashed var(--primary);
   border-radius: var(--radius-lg);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 16px;
-  color: var(--primary);
-  padding: 0 20px;
+  overflow: hidden;
+  text-decoration: none;
 }
 
-.banner-placeholder i {
-  font-size: 26px;
-  flex-shrink: 0;
-  opacity: 0.7;
+.banner-img {
+  width: 100%;
+  height: 130px;
+  object-fit: cover;
+  display: block;
+  border-radius: var(--radius-lg);
+  transition: opacity 0.2s ease;
 }
 
-.banner-placeholder div {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.banner-placeholder strong {
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--secondary);
-}
-
-.banner-placeholder span {
-  font-size: 11px;
-  color: var(--text-muted);
+.banner-img:hover {
+  opacity: 0.92;
 }
 
 /* Banner transition */
