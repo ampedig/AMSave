@@ -60,5 +60,13 @@ export default defineNuxtConfig({
 
   future: {
     compatibilityVersion: 4
+  },
+
+  nitro: {
+    // Tell Nitro to NOT bundle btch-downloader – treat it as a plain Node module.
+    // This eliminates the 40-second cold-start caused by Rollup re-processing the ESM.
+    externals: {
+      external: ['btch-downloader', 'btch-http']
+    }
   }
 })
