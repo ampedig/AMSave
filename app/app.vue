@@ -1,81 +1,111 @@
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { ref, watch, onMounted } from "vue";
 
-const url = ref('')
-const isLoading = ref(false)
+const url = ref("");
+const isLoading = ref(false);
 const downloadResult = ref<null | {
-  title: string,
-  thumbnail: string,
-  downloadUrl: string,
-  audioUrl?: string,
-  platform: string,
-  type: 'video' | 'image'
-}>(null)
-const error = ref('')
+  title: string;
+  thumbnail: string;
+  downloadUrl: string;
+  audioUrl?: string;
+  platform: string;
+  type: "video" | "image";
+}>(null);
+const error = ref("");
 
 const platforms = [
-  { id: 'instagram', name: 'Instagram', icon: 'fa-brands fa-instagram', color: 'linear-gradient(45deg, #f09433 0%,#e6683c 25%,#dc2743 50%,#cc2366 75%,#bc1888 100%)' },
-  { id: 'tiktok', name: 'TikTok', icon: 'fa-brands fa-tiktok', color: 'linear-gradient(45deg, #00f2ea, #ff0050)' },
-  { id: 'facebook', name: 'Facebook', icon: 'fa-brands fa-facebook', color: '#1877F2' }
-]
+  { id: "instagram", name: "Instagram", icon: "fa-brands fa-instagram" },
+  { id: "tiktok", name: "TikTok", icon: "fa-brands fa-tiktok" },
+  { id: "facebook", name: "Facebook", icon: "fa-brands fa-facebook" },
+  { id: "youtube", name: "YouTube", icon: "fa-brands fa-youtube" },
+];
 
-const selectedPlatform = ref('instagram')
+const selectedPlatform = ref("instagram");
 
 // Auto-detect platform using Regex
 watch(url, (newUrl) => {
-  if (!newUrl) return
-
-  const lowerUrl = newUrl.toLowerCase()
+  if (!newUrl) return;
+  const lowerUrl = newUrl.toLowerCase();
   if (/tiktok\.com/i.test(lowerUrl) || /vt\.tiktok\.com/i.test(lowerUrl)) {
-    selectedPlatform.value = 'tiktok'
+    selectedPlatform.value = "tiktok";
   } else if (/instagram\.com/i.test(lowerUrl)) {
-    selectedPlatform.value = 'instagram'
+    selectedPlatform.value = "instagram";
   } else if (/facebook\.com/i.test(lowerUrl) || /fb\.watch/i.test(lowerUrl)) {
-    selectedPlatform.value = 'facebook'
+    selectedPlatform.value = "facebook";
+  } else if (/youtube\.com/i.test(lowerUrl) || /youtu\.be/i.test(lowerUrl)) {
+    selectedPlatform.value = "youtube";
   }
-})
+});
 
 const handleDownload = async () => {
   if (!url.value) {
-    error.value = 'Silakan masukkan link terlebih dahulu'
-    return
+    error.value = "Silakan masukkan link terlebih dahulu";
+    return;
   }
 
-  error.value = ''
-  isLoading.value = true
-  downloadResult.value = null
+  error.value = "";
+  isLoading.value = true;
+  downloadResult.value = null;
 
   try {
-    const res = await $fetch('/api/download', {
-      method: 'POST',
-      body: { 
-        url: url.value, 
-        platform: selectedPlatform.value 
-      }
-    })
-    
+    const res = await $fetch("/api/download", {
+      method: "POST",
+      body: { url: url.value, platform: selectedPlatform.value },
+    });
     if (res && res.status) {
-      downloadResult.value = res.data
+      downloadResult.value = res.data;
     } else {
-      error.value = res.message || 'Gagal mengambil informasi media. Link mungkin private.'
+      error.value =
+        res.message ||
+        "Gagal mengambil media. Link mungkin private atau tidak valid.";
     }
   } catch (err) {
-    error.value = 'Gagal memproses link. Pastikan link server berjalan dengan baik.'
+    error.value = "Gagal memproses. Cek koneksi atau coba beberapa saat lagi.";
   } finally {
-    isLoading.value = false
+    isLoading.value = false;
   }
-}
+};
 
 const clearInput = () => {
-  url.value = ''
-  downloadResult.value = null
-  error.value = ''
-}
+  url.value = "";
+  downloadResult.value = null;
+  error.value = "";
+};
 
 const getProxyUrl = (mediaUrl: string, type: string) => {
-  if (!mediaUrl) return '#'
-  return `/api/proxy-download?url=${encodeURIComponent(mediaUrl)}&name=AMSave-${type}`
-}
+  if (!mediaUrl) return "#";
+  return `/api/proxy-download?url=${encodeURIComponent(mediaUrl)}&name=AMSave-${type}`;
+};
+
+const platformLabel = (id: string) => {
+  return platforms.find((p) => p.id === id)?.name || "Media";
+};
+
+// Banner Slider
+const bannerSlides = [
+  {
+    id: 1,
+    label: "Ruang Iklan 1",
+    sub: "Hubungi kami untuk pasang iklan di sini",
+  },
+  {
+    id: 2,
+    label: "Ruang Iklan 2",
+    sub: "Jangkau ribuan pengguna AMSave setiap hari",
+  },
+  {
+    id: 3,
+    label: "Ruang Iklan 3",
+    sub: "Promosikan layanan topup & produk digitalmu",
+  },
+];
+const activeBanner = ref(0);
+
+onMounted(() => {
+  setInterval(() => {
+    activeBanner.value = (activeBanner.value + 1) % bannerSlides.length;
+  }, 3000);
+});
 </script>
 
 <template>
@@ -86,28 +116,76 @@ const getProxyUrl = (mediaUrl: string, type: string) => {
         <div class="logo-box">
           <i class="fa-solid fa-cloud-arrow-down"></i>
         </div>
-        <h1 class="title-gradient">AMSave</h1>
+        <div>
+          <h1 class="title-gradient">AMSave</h1>
+          <p class="tagline">Media Downloader</p>
+        </div>
       </div>
-      <button class="icon-btn">
-        <i class="fa-solid fa-circle-info"></i>
-      </button>
+      <a href="https://ampedig.com" target="_blank" class="powered-badge">
+        by Ampedig
+      </a>
     </header>
 
     <main>
-      <!-- Hero -->
-      <section class="hero text-center animate-fade-in" style="animation-delay: 0.1s">
-        <h2>Download Media <br />Tanpa Batas</h2>
-        <p class="text-muted">Simpan video dan foto favoritmu dari media sosial dalam sekejap.</p>
+      <section
+        class="desc-section animate-fade-in text-center"
+        style="animation-delay: 0.08s"
+      >
+        <h2 class="hero-title">Unduh Media <span class="text-primary">Tanpa Batas</span></h2>
+        <p class="desc-text">
+          <strong>AMSave</strong> adalah platform download video & foto gratis
+          dari media sosial populer. Simpan konten dari
+          <strong>Instagram</strong>, <strong>TikTok</strong>,
+          <strong>Facebook</strong>, dan <strong>YouTube</strong> dengan mudah —
+          tanpa login, tanpa watermark.
+        </p>
+      </section>
+
+      <!-- Banner Slider -->
+      <section
+        class="banner-slider animate-fade-in"
+        style="animation-delay: 0.1s"
+      >
+        <div class="banner-track">
+          <transition-group name="banner-fade" tag="div" class="banner-inner">
+            <div
+              v-for="slide in bannerSlides"
+              :key="slide.id"
+              v-show="activeBanner === slide.id - 1"
+              class="banner-slide"
+            >
+              <div class="banner-placeholder">
+                <i class="fa-regular fa-rectangle-ad"></i>
+                <div>
+                  <strong>{{ slide.label }}</strong>
+                  <span>{{ slide.sub }}</span>
+                </div>
+              </div>
+            </div>
+          </transition-group>
+        </div>
+        <div class="banner-dots">
+          <span
+            v-for="(s, i) in bannerSlides"
+            :key="i"
+            class="dot"
+            :class="{ active: activeBanner === i }"
+            @click="activeBanner = i"
+          ></span>
+        </div>
       </section>
 
       <!-- Platform Selector -->
-      <section class="platforms animate-fade-in" style="animation-delay: 0.2s">
-        <div 
-          v-for="p in platforms" 
+      <section class="platforms animate-fade-in" style="animation-delay: 0.1s">
+        <div
+          v-for="p in platforms"
           :key="p.id"
           class="platform-pill"
           :class="{ active: selectedPlatform === p.id }"
-          @click="selectedPlatform = p.id"
+          @click="
+            selectedPlatform = p.id;
+            clearInput();
+          "
         >
           <i :class="p.icon"></i>
           {{ p.name }}
@@ -115,104 +193,178 @@ const getProxyUrl = (mediaUrl: string, type: string) => {
       </section>
 
       <!-- Input Area -->
-      <section class="input-section animate-fade-in" style="animation-delay: 0.3s">
-        <div class="input-wrapper">
-          <input 
-            v-model="url" 
-            type="text" 
-            placeholder="Tempel link di sini..."
-            @keyup.enter="handleDownload"
-          />
-          <button v-if="url" class="clear-btn" @click="clearInput">
-            <i class="fa-solid fa-xmark"></i>
+      <section
+        class="input-section animate-fade-in"
+        style="animation-delay: 0.15s"
+      >
+        <div class="input-card">
+          <div class="input-wrapper">
+            <input
+              v-model="url"
+              type="text"
+              :placeholder="`Contoh: https://www.${selectedPlatform === 'youtube' ? 'youtube.com/watch?v=...' : selectedPlatform + '.com/...'}`"
+              @keyup.enter="handleDownload"
+            />
+            <button v-if="url" class="clear-btn" @click="clearInput">
+              <i class="fa-solid fa-xmark"></i>
+            </button>
+          </div>
+
+          <p v-if="error" class="error-msg">
+            <i class="fa-solid fa-circle-exclamation"></i> {{ error }}
+          </p>
+
+          <button
+            class="btn-primary w-full mt-3"
+            :disabled="isLoading"
+            @click="handleDownload"
+          >
+            <span v-if="!isLoading">
+              <i class="fa-solid fa-download"></i> Download Sekarang
+            </span>
+            <span v-else>
+              <i class="fa-solid fa-circle-notch fa-spin"></i> Memproses...
+            </span>
           </button>
         </div>
-        
-        <p v-if="error" class="error-msg">{{ error }}</p>
-
-        <button 
-          class="btn-primary w-full mt-4" 
-          :disabled="isLoading"
-          @click="handleDownload"
-        >
-          <span v-if="!isLoading">
-            <i class="fa-solid fa-download"></i> Download Sekarang
-          </span>
-          <span v-else>
-            <i class="fa-solid fa-circle-notch fa-spin"></i> Memproses...
-          </span>
-        </button>
       </section>
 
       <!-- Result Area -->
       <section v-if="downloadResult" class="result-section animate-fade-in">
-        <div class="glass-card result-card">
+        <div class="result-card">
+          <!-- Platform badge -->
+          <div class="result-platform-badge">
+            <i
+              :class="
+                platforms.find((p) => p.id === downloadResult.platform)?.icon
+              "
+            ></i>
+            {{ platformLabel(downloadResult.platform) }}
+          </div>
+
+          <!-- Thumbnail -->
           <div class="thumbnail-wrapper">
-            <img :src="downloadResult.thumbnail" alt="Preview" />
+            <img
+              :src="downloadResult.thumbnail"
+              alt="Preview Media"
+              loading="lazy"
+            />
             <div class="type-badge">
-              <i class="fa-solid fa-video"></i> {{ downloadResult.type.toUpperCase() }}
+              <i
+                :class="
+                  downloadResult.type === 'image'
+                    ? 'fa-solid fa-image'
+                    : 'fa-solid fa-film'
+                "
+              ></i>
+              {{ downloadResult.type === "image" ? "Foto" : "Video" }}
             </div>
           </div>
+
+          <!-- Info -->
           <div class="result-info">
+            <p class="result-ready-label">
+              <i class="fa-solid fa-circle-check"></i> Siap diunduh
+            </p>
             <h3 class="video-title">{{ downloadResult.title }}</h3>
-            <p class="text-muted">Siap untuk didownload</p>
-            
-            <div class="download-actions mt-4">
-              <a 
-                v-if="downloadResult.downloadUrl" 
-                :href="getProxyUrl(downloadResult.downloadUrl, downloadResult.type)" 
-                class="btn-primary w-full" 
-                download
-              >
-                <i :class="downloadResult.type === 'image' ? 'fa-solid fa-image' : 'fa-solid fa-video'"></i> 
-                {{ downloadResult.type === 'image' ? 'Simpan Gambar' : 'Simpan Video' }}
-              </a>
-              
-              <a 
-                v-if="downloadResult.audioUrl" 
-                :href="getProxyUrl(downloadResult.audioUrl, 'audio')" 
-                class="btn-primary btn-audio w-full mt-2" 
-                download
-              >
-                <i class="fa-solid fa-music"></i> Simpan Audio / Musik
-              </a>
-            </div>
+          </div>
+
+          <!-- Download Actions -->
+          <div class="download-actions">
+            <a
+              v-if="downloadResult.downloadUrl"
+              :href="
+                getProxyUrl(downloadResult.downloadUrl, downloadResult.type)
+              "
+              class="btn-download"
+              download
+            >
+              <span class="dl-icon">
+                <i
+                  :class="
+                    downloadResult.type === 'image'
+                      ? 'fa-solid fa-image'
+                      : 'fa-solid fa-video'
+                  "
+                ></i>
+              </span>
+              <span class="dl-text">
+                <strong>{{
+                  downloadResult.type === "image"
+                    ? "Simpan Gambar"
+                    : "Simpan Video"
+                }}</strong>
+                <small>Kualitas terbaik</small>
+              </span>
+              <i class="fa-solid fa-arrow-down dl-arrow"></i>
+            </a>
+
+            <a
+              v-if="downloadResult.audioUrl"
+              :href="getProxyUrl(downloadResult.audioUrl, 'audio')"
+              class="btn-download btn-download-audio"
+              download
+            >
+              <span class="dl-icon">
+                <i class="fa-solid fa-music"></i>
+              </span>
+              <span class="dl-text">
+                <strong>Simpan Audio</strong>
+                <small>Format M4A / MP3</small>
+              </span>
+              <i class="fa-solid fa-arrow-down dl-arrow"></i>
+            </a>
           </div>
         </div>
       </section>
 
-      <!-- Features -->
-      <section class="features animate-fade-in" style="animation-delay: 0.4s">
-        <div class="feature-item">
-          <div class="feature-icon"><i class="fa-solid fa-bolt"></i></div>
-          <div class="feature-text">
-            <h4>Super Cepat</h4>
-            <p>Proses download instan tanpa menunggu lama.</p>
+      <!-- How To Use -->
+      <section class="howto animate-fade-in" style="animation-delay: 0.2s">
+        <h3 class="section-title">Cara Pakai</h3>
+        <div class="steps">
+          <div class="step-item">
+            <div class="step-num">1</div>
+            <div class="step-text">
+              <strong>Pilih Platform</strong>
+              <span>Pilih IG, TikTok, FB, atau YouTube</span>
+            </div>
           </div>
-        </div>
-        <div class="feature-item">
-          <div class="feature-icon"><i class="fa-solid fa-shield-halved"></i></div>
-          <div class="feature-text">
-            <h4>100% Aman</h4>
-            <p>Data pribadimu tetap terjaga dan terlindungi.</p>
+          <div class="step-item">
+            <div class="step-num">2</div>
+            <div class="step-text">
+              <strong>Tempel Link</strong>
+              <span>Copy link postingan & paste di kolom atas</span>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-num">3</div>
+            <div class="step-text">
+              <strong>Download!</strong>
+              <span>Klik tombol & simpan ke galerimu</span>
+            </div>
           </div>
         </div>
       </section>
     </main>
 
-    <!-- PWA Install Banner (Basic Logic) -->
     <footer class="footer">
-      <p class="text-muted">© 2026 AMSave Core. Mobile First PWA.</p>
+      <p>
+        © 2026 <strong>AMSave</strong> · Powered by
+        <a href="https://ampedig.id" target="_blank" class="footer-link"
+          >Ampedig</a
+        >
+      </p>
     </footer>
   </div>
 </template>
 
 <style scoped>
+/* ── Header ─────────────────────────────── */
 .header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 30px;
+  margin-bottom: 28px;
 }
 
 .logo-area {
@@ -222,58 +374,283 @@ const getProxyUrl = (mediaUrl: string, type: string) => {
 }
 
 .logo-box {
-  width: 42px;
-  height: 42px;
-  background: linear-gradient(135deg, var(--primary), var(--secondary));
-  border-radius: 12px;
+  width: 44px;
+  height: 44px;
+  background: var(--primary);
+  border-radius: 14px;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 20px;
   color: white;
-  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+  box-shadow: 0 4px 12px var(--primary-shadow);
+  flex-shrink: 0;
 }
 
 .logo-area h1 {
-  font-size: 24px;
+  font-size: 22px;
   letter-spacing: -0.5px;
+  line-height: 1;
 }
 
-.icon-btn {
-  background: var(--glass-bg);
+.tagline {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 1px;
+  letter-spacing: 0.3px;
+}
+
+.powered-badge {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--primary);
+  background: var(--primary-light);
+  padding: 5px 12px;
+  border-radius: 100px;
+  letter-spacing: 0.3px;
+  text-decoration: none;
+}
+
+/* ── Hero ────────────────────────────────── */
+.hero {
+  margin-bottom: 28px;
+}
+
+.hero-content {
+  background: linear-gradient(135deg, var(--secondary) 0%, #2c4a6a 100%);
+  border-radius: var(--radius-xl);
+  padding: 30px 24px 28px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-content::before {
+  content: "";
+  position: absolute;
+  top: -40px;
+  right: -40px;
+  width: 160px;
+  height: 160px;
+  background: radial-gradient(
+    circle,
+    rgba(91, 132, 212, 0.4) 0%,
+    transparent 70%
+  );
+  border-radius: 50%;
+}
+
+.hero-icons {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.hicon {
   width: 40px;
   height: 40px;
-  border-radius: 50%;
-  color: var(--text-muted);
+  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
+  font-size: 18px;
+  color: white;
 }
 
-.hero {
-  margin-bottom: 40px;
+.hicon.ig {
+  background: linear-gradient(45deg, #f09433, #bc1888);
+}
+.hicon.tt {
+  background: #000000;
+}
+.hicon.yt {
+  background: #ff0000;
+}
+.hicon.fb {
+  background: #1877f2;
 }
 
-.hero h2 {
-  font-size: 32px;
+.hero-content h2 {
+  font-size: 26px;
   font-weight: 800;
-  margin-bottom: 12px;
-  line-height: 1.2;
+  color: #fff;
+  line-height: 1.25;
+  margin-bottom: 10px;
 }
 
-.hero p {
-  font-size: 16px;
+.text-primary {
+  color: #89aff0;
 }
 
+.subtitle {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.55);
+  letter-spacing: 0.5px;
+}
+
+/* ── Description Text / Hero ────────────────────── */
+.desc-section {
+  margin-bottom: 24px;
+}
+
+.hero-title {
+  font-size: 28px;
+  font-weight: 800;
+  line-height: 1.25;
+  margin-bottom: 8px;
+  color: var(--text);
+  letter-spacing: -0.5px;
+}
+
+.text-primary {
+  color: var(--primary);
+}
+
+.desc-text {
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--text-muted);
+  text-align: center;
+  padding: 0 4px;
+}
+
+.desc-text strong {
+  color: var(--text);
+}
+
+/* ── Banner Slider ────────────────────────── */
+.banner-slider {
+  margin-bottom: 22px;
+}
+
+.banner-track {
+  position: relative;
+  height: 130px;
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+}
+
+.banner-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.banner-slide {
+  position: absolute;
+  inset: 0;
+}
+
+.banner-placeholder {
+  width: 100%;
+  height: 130px;
+  background: linear-gradient(135deg, var(--primary-light) 0%, #ddf0f7 100%);
+  border: 1.5px dashed var(--primary);
+  border-radius: var(--radius-lg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  color: var(--primary);
+  padding: 0 20px;
+}
+
+.banner-placeholder i {
+  font-size: 26px;
+  flex-shrink: 0;
+  opacity: 0.7;
+}
+
+.banner-placeholder div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.banner-placeholder strong {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--secondary);
+}
+
+.banner-placeholder span {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+/* Banner transition */
+.banner-fade-enter-active,
+.banner-fade-leave-active {
+  transition:
+    opacity 0.5s ease,
+    transform 0.5s ease;
+  position: absolute;
+  width: 100%;
+}
+.banner-fade-enter-from {
+  opacity: 0;
+  transform: translateX(30px);
+}
+.banner-fade-leave-to {
+  opacity: 0;
+  transform: translateX(-30px);
+}
+
+.banner-dots {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 100px;
+  background: var(--card-border);
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.dot.active {
+  background: var(--primary);
+  width: 20px;
+}
+
+/* ── Platforms ───────────────────────────── */
 .platforms {
   display: flex;
-  gap: 10px;
+  gap: 8px;
   justify-content: center;
-  margin-bottom: 30px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+  padding: 0 2px;
 }
 
+/* ── Input Card ──────────────────────────── */
 .input-section {
-  margin-bottom: 40px;
+  margin-bottom: 24px;
+}
+
+.input-card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  box-shadow: var(--card-shadow);
+}
+
+.input-label {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .input-wrapper {
@@ -282,34 +659,62 @@ const getProxyUrl = (mediaUrl: string, type: string) => {
 
 .clear-btn {
   position: absolute;
-  right: 15px;
+  right: 14px;
   top: 50%;
   transform: translateY(-50%);
-  background: transparent;
+  background: var(--card-border);
   color: var(--text-muted);
-  font-size: 18px;
+  font-size: 12px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .error-msg {
   color: var(--error);
-  font-size: 14px;
-  margin-top: 8px;
-  text-align: center;
+  font-size: 13px;
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #fff1f2;
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  border-left: 3px solid var(--error);
 }
 
+/* ── Result Card ─────────────────────────── */
 .result-section {
-  margin-bottom: 40px;
+  margin-bottom: 24px;
 }
 
 .result-card {
-  padding: 16px;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--card-shadow);
+}
+
+.result-platform-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--primary);
+  border-bottom: 1px solid var(--card-border);
+  background: var(--primary-light);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .thumbnail-wrapper {
   position: relative;
-  border-radius: var(--radius-lg);
-  overflow: hidden;
-  margin-bottom: 16px;
   width: 100%;
 }
 
@@ -322,87 +727,198 @@ const getProxyUrl = (mediaUrl: string, type: string) => {
 
 .type-badge {
   position: absolute;
-  top: 12px;
-  right: 12px;
-  background: rgba(0, 0, 0, 0.6);
+  top: 10px;
+  right: 10px;
+  background: rgba(29, 42, 54, 0.75);
+  backdrop-filter: blur(6px);
+  color: #fff;
   padding: 4px 10px;
-  border-radius: 8px;
-  font-size: 12px;
+  border-radius: 100px;
+  font-size: 11px;
   font-weight: 700;
-  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  gap: 5px;
 }
 
-.result-info h3.video-title {
-  font-size: 16px;
-  margin-bottom: 8px;
+.result-info {
+  padding: 16px 16px 8px;
+}
+
+.result-ready-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--success);
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.video-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
   display: -webkit-box;
-  -webkit-line-clamp: 4;
+  -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
-  text-overflow: ellipsis;
-  line-height: 1.4;
-  font-weight: 500;
+  line-height: 1.5;
 }
 
-.features {
+/* ── Download Buttons ────────────────────── */
+.download-actions {
   display: flex;
   flex-direction: column;
-  gap: 20px;
-  margin-top: 20px;
+  gap: 1px;
+  padding: 8px 16px 16px;
 }
 
-.feature-item {
+.btn-download {
   display: flex;
-  gap: 16px;
   align-items: center;
-  padding: 16px;
-  background: var(--glass-bg);
-  border-radius: var(--radius-lg);
-  border: 1px solid var(--glass-border);
+  gap: 14px;
+  padding: 14px 16px;
+  background: var(--primary);
+  border-radius: var(--radius-md);
+  color: white;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  margin-top: 8px;
 }
 
-.feature-icon {
-  width: 48px;
-  height: 48px;
-  background: rgba(99, 102, 241, 0.1);
-  border-radius: 12px;
+.btn-download:hover {
+  background: var(--primary-dark);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px var(--primary-shadow);
+}
+
+.btn-download-audio {
+  background: var(--secondary);
+}
+
+.btn-download-audio:hover {
+  background: #29404f;
+  box-shadow: 0 6px 16px rgba(29, 42, 54, 0.25);
+}
+
+.dl-icon {
+  width: 36px;
+  height: 36px;
+  background: rgba(255, 255, 255, 0.18);
+  border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--primary);
-  font-size: 20px;
-}
-
-.feature-text h4 {
   font-size: 16px;
-  margin-bottom: 2px;
+  flex-shrink: 0;
 }
 
-.feature-text p {
+.dl-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.dl-text strong {
   font-size: 14px;
+  font-weight: 700;
+}
+
+.dl-text small {
+  font-size: 11px;
+  opacity: 0.7;
+}
+
+.dl-arrow {
+  font-size: 13px;
+  opacity: 0.7;
+}
+
+/* ── How To Use ──────────────────────────── */
+.howto {
+  margin-bottom: 28px;
+}
+
+.section-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  margin-bottom: 14px;
+}
+
+.steps {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.step-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-md);
+}
+
+.step-num {
+  width: 32px;
+  height: 32px;
+  background: var(--primary);
+  color: white;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.step-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.step-text strong {
+  font-size: 14px;
+  color: var(--text);
+}
+
+.step-text span {
+  font-size: 12px;
   color: var(--text-muted);
 }
 
+/* ── Footer ──────────────────────────────── */
 .footer {
   margin-top: auto;
-  padding: 40px 0 20px;
+  padding: 20px 0 10px;
   text-align: center;
   font-size: 12px;
+  color: var(--text-muted);
 }
 
-.text-center { text-align: center; }
-.w-full { width: 100%; }
-.mt-4 { margin-top: 16px; }
-.mt-2 { margin-top: 12px; }
-.text-muted { color: var(--text-muted); }
-.download-actions { display: flex; flex-direction: column; gap: 4px; }
-
-.btn-audio {
-  background: linear-gradient(to right, #ec4899, #be185d);
-  box-shadow: 0 4px 15px rgba(236, 72, 153, 0.4);
+.footer-link {
+  color: var(--primary);
+  font-weight: 600;
+  text-decoration: none;
 }
 
-.btn-audio:hover {
-  box-shadow: 0 6px 20px rgba(236, 72, 153, 0.6);
+/* ── Utilities ───────────────────────────── */
+.w-full {
+  width: 100%;
+}
+.mt-3 {
+  margin-top: 14px;
+}
+.mt-4 {
+  margin-top: 16px;
 }
 </style>

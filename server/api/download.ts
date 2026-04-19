@@ -49,8 +49,53 @@ export default defineEventHandler(async (event) => {
       if (res && (res.Normal_video || res.HD)) {
         downloadUrl = res.HD || res.Normal_video
         thumbnail = 'https://placehold.co/400x600/1877f2/ffffff?text=Facebook'
+        
+        // Coba ekstrak Thumbnail asli & Judul dari Tag Facebook OpenGraph (Opsional)
+        try {
+          const fbResponse = await fetch(url)
+          const fbHtml = await fbResponse.text()
+          
+          const titleMatch = fbHtml.match(/<title>([\s\S]*?)<\/title>/i)
+          if (titleMatch && titleMatch[1]) {
+            title = titleMatch[1].replace(/&amp;/g, '&').replace(/\n/g, ' ').trim()
+          }
+          
+          const imgMatch = fbHtml.match(/property="og:image"\s+content="([^"]+)"/i)
+          if (imgMatch && imgMatch[1]) {
+            thumbnail = imgMatch[1].replace(/&amp;/g, '&')
+          }
+        } catch (scrapeErr) {
+          console.error("Gagal scrape Thumbnail FB:", scrapeErr)
+        }
+        
       } else {
         return { status: false, message: 'Tidak dapat menemukan video Facebook tersebut.' }
+      }
+    } else if (platform === 'youtube') {
+      try {
+        const { default: youtubedl } = await import('youtube-dl-exec')
+        const res = await youtubedl(url, {
+          dumpSingleJson: true,
+          noWarnings: true,
+          preferFreeFormats: true,
+          noCheckCertificates: true
+        });
+        
+        if (res) {
+          title = res.title || title;
+          thumbnail = res.thumbnail || 'https://placehold.co/400x600/ff0000/ffffff?text=YouTube';
+          
+          let bestFormat = res.formats?.slice().reverse().find((f: any) => f.ext === 'mp4' && f.vcodec !== 'none' && f.acodec !== 'none') || res.formats?.slice().reverse().find((f: any) => f.ext === 'mp4');
+          downloadUrl = res.url || (bestFormat ? bestFormat.url : '');
+          
+          let bestAudio = res.formats?.slice().reverse().find((f: any) => f.ext === 'm4a' || (f.acodec !== 'none' && f.vcodec === 'none'));
+          if (bestAudio) audioUrl = bestAudio.url || '';
+        } else {
+           return { status: false, message: 'Tidak dapat menemukan video YouTube tersebut.' }
+        }
+      } catch (err) {
+        console.error("YouTube Error", err)
+        return { status: false, message: 'Gagal mengunduh URL YouTube, video mungkin private atau tidak valid.' }
       }
     } else {
       return { status: false, message: 'Platform tidak didukung' }
