@@ -95,13 +95,13 @@ const bannerSlides = [
     id: 2,
     imgUrl: banner1,
     alt: "AMSave Banner 2",
-    link: "https://ampedig.com",
+    link: "https://ampedig.id",
   },
   {
     id: 3,
     imgUrl: banner1,
     alt: "AMSave Banner 3",
-    link: "https://ampedig.com",
+    link: "https://ampedig.id",
   },
 ];
 const activeBanner = ref(0);
@@ -126,7 +126,7 @@ onMounted(() => {
           <p class="tagline">Media Downloader</p>
         </div>
       </div>
-      <a href="https://ampedig.com" target="_blank" class="powered-badge">
+      <a href="https://ampedig.id" target="_blank" class="powered-badge">
         by Ampedig
       </a>
     </header>
