@@ -82,23 +82,25 @@ const platformLabel = (id: string) => {
 };
 
 // Banner Slider
+import banner1 from "~/assets/img/1.webp";
+
 const bannerSlides = [
   {
     id: 1,
-    imgUrl: "https://placehold.co/800x130/10b981/FFFFFF?text=Iklan+1",
-    alt: "Iklan 1",
-    link: "https://ampedig.com",
+    imgUrl: banner1,
+    alt: "TOPUPMAS - Top Up Game Dan PPOB",
+    link: "https://topupmas.com",
   },
   {
     id: 2,
-    imgUrl: "https://placehold.co/800x130/10b981/FFFFFF?text=Iklan+2",
-    alt: "Iklan 2",
+    imgUrl: banner1,
+    alt: "AMSave Banner 2",
     link: "https://ampedig.com",
   },
   {
     id: 3,
-    imgUrl: "https://placehold.co/800x130/10b981/FFFFFF?text=Iklan+3",
-    alt: "Iklan 3",
+    imgUrl: banner1,
+    alt: "AMSave Banner 3",
     link: "https://ampedig.com",
   },
 ];
@@ -134,7 +136,9 @@ onMounted(() => {
         class="desc-section animate-fade-in text-center"
         style="animation-delay: 0.08s"
       >
-        <h2 class="hero-title">Unduh Media <span class="text-primary">Tanpa Batas</span></h2>
+        <h2 class="hero-title">
+          Unduh Media <span class="text-primary">Tanpa Batas</span>
+        </h2>
         <p class="desc-text">
           <strong>AMSave</strong> adalah platform download video & foto gratis
           dari media sosial populer. Simpan konten dari
@@ -157,12 +161,13 @@ onMounted(() => {
               v-show="activeBanner === slide.id - 1"
               class="banner-slide"
             >
-              <a :href="slide.link" target="_blank" rel="noopener noreferrer" class="banner-link">
-                <img
-                  :src="slide.imgUrl"
-                  :alt="slide.alt"
-                  class="banner-img"
-                />
+              <a
+                :href="slide.link"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="banner-link"
+              >
+                <img :src="slide.imgUrl" :alt="slide.alt" class="banner-img" />
               </a>
             </div>
           </transition-group>
@@ -529,9 +534,10 @@ onMounted(() => {
 
 .banner-track {
   position: relative;
-  height: 130px;
+  width: 100%;
+  aspect-ratio: 325 / 125;
   overflow: hidden;
-  border-radius: var(--radius-lg);
+  border-radius: 16px;
 }
 
 .banner-inner {
@@ -548,18 +554,18 @@ onMounted(() => {
 .banner-link {
   display: block;
   width: 100%;
-  height: 130px;
-  border-radius: var(--radius-lg);
+  height: 100%;
+  border-radius: 16px;
   overflow: hidden;
   text-decoration: none;
 }
 
 .banner-img {
   width: 100%;
-  height: 130px;
-  object-fit: cover;
+  height: 100%;
+  object-fit: fill;
   display: block;
-  border-radius: var(--radius-lg);
+  border-radius: 16px;
   transition: opacity 0.2s ease;
 }
 
