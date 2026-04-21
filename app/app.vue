@@ -83,6 +83,7 @@ const platformLabel = (id: string) => {
 
 // Banner Slider
 import banner1 from "~/assets/img/1.webp";
+import ogImage from "~/assets/img/og-imaga.webp";
 
 const bannerSlides = [
   {
@@ -105,6 +106,25 @@ const bannerSlides = [
   },
 ];
 const activeBanner = ref(0);
+
+useSeoMeta({
+  title: "AMSave - Unduh Media Tanpa Batas",
+  ogTitle: "AMSave - Unduh Media Tanpa Batas",
+  description: "Download video dan foto dari Instagram, TikTok, Facebook, dan YouTube secara gratis. Cepat, aman, dan tanpa watermark.",
+  ogDescription: "Download video dan foto dari Instagram, TikTok, Facebook, dan YouTube secara gratis. Cepat, aman, dan tanpa watermark.",
+  ogImage: `https://amsave.ampedig.id${ogImage}`,
+  ogUrl: "https://amsave.ampedig.id/",
+  twitterCard: "summary_large_image",
+  twitterTitle: "AMSave - Unduh Media Tanpa Batas",
+  twitterDescription: "Download video dan foto dari Instagram, TikTok, Facebook, dan YouTube secara gratis. Cepat, aman, dan tanpa watermark.",
+  twitterImage: `https://amsave.ampedig.id${ogImage}`,
+});
+
+useHead({
+  htmlAttrs: {
+    lang: "id",
+  },
+});
 
 onMounted(() => {
   setInterval(() => {
@@ -132,6 +152,7 @@ onMounted(() => {
     </header>
 
     <main>
+      <!-- hero section -->
       <section
         class="desc-section animate-fade-in text-center"
         style="animation-delay: 0.08s"
@@ -143,7 +164,7 @@ onMounted(() => {
           <strong>AMSave</strong> adalah platform download video & foto gratis
           dari media sosial populer. Simpan konten dari
           <strong>Instagram</strong>, <strong>TikTok</strong>,
-          <strong>Facebook</strong>, dan <strong>YouTube</strong> dengan mudah —
+          <strong>Facebook</strong>, dan <strong>YouTube</strong> dengan mudah
           tanpa login, tanpa watermark.
         </p>
       </section>
@@ -503,12 +524,12 @@ onMounted(() => {
 }
 
 .hero-title {
-  font-size: 28px;
-  font-weight: 800;
+  font-size: 30px;
+  font-weight: 900;
   line-height: 1.25;
-  margin-bottom: 8px;
+  margin-bottom: 10px;
   color: var(--text);
-  letter-spacing: -0.5px;
+  letter-spacing: -0.8px;
 }
 
 .text-primary {
