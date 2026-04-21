@@ -135,6 +135,7 @@ onMounted(() => {
 
 <template>
   <div class="app-container">
+    <VitePwaManifest />
     <!-- Header -->
     <header class="header animate-fade-in">
       <div class="logo-area">
