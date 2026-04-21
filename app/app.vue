@@ -74,7 +74,8 @@ const clearInput = () => {
 
 const getProxyUrl = (mediaUrl: string, type: string) => {
   if (!mediaUrl) return "#";
-  return `/api/proxy-download?url=${encodeURIComponent(mediaUrl)}&name=AMSave-${type}`;
+  const uniqueId = Math.floor(1000 + Math.random() * 9000);
+  return `/api/proxy-download?url=${encodeURIComponent(mediaUrl)}&name=AMSave-${type}-${uniqueId}`;
 };
 
 const platformLabel = (id: string) => {
