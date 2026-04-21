@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch, onMounted } from "vue";
+import { ref, watch, onMounted, onUnmounted } from "vue";
 
 const url = ref("");
 const isLoading = ref(false);
@@ -127,11 +127,12 @@ useHead({
   },
 });
 
-onMounted(() => {
-  setInterval(() => {
-    activeBanner.value = (activeBanner.value + 1) % bannerSlides.length;
-  }, 3000);
-});
+import { Swiper, SwiperSlide } from 'swiper/vue';
+import { Autoplay, Pagination } from 'swiper/modules';
+import 'swiper/css';
+import 'swiper/css/pagination';
+
+const swiperModules = [Autoplay, Pagination];
 </script>
 
 <template>
@@ -176,34 +177,29 @@ onMounted(() => {
         class="banner-slider animate-fade-in"
         style="animation-delay: 0.1s"
       >
-        <div class="banner-track">
-          <transition-group name="banner-fade" tag="div" class="banner-inner">
-            <div
-              v-for="slide in bannerSlides"
-              :key="slide.id"
-              v-show="activeBanner === slide.id - 1"
-              class="banner-slide"
+        <Swiper
+          :modules="swiperModules"
+          :slides-per-view="1"
+          :loop="true"
+          :autoplay="{ delay: 3000, disableOnInteraction: false }"
+          :pagination="{ clickable: true }"
+          class="banner-track"
+        >
+          <SwiperSlide
+            v-for="slide in bannerSlides"
+            :key="slide.id"
+            class="banner-slide"
+          >
+            <a
+              :href="slide.link"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="banner-link"
             >
-              <a
-                :href="slide.link"
-                target="_blank"
-                rel="noopener noreferrer"
-                class="banner-link"
-              >
-                <img :src="slide.imgUrl" :alt="slide.alt" class="banner-img" />
-              </a>
-            </div>
-          </transition-group>
-        </div>
-        <div class="banner-dots">
-          <span
-            v-for="(s, i) in bannerSlides"
-            :key="i"
-            class="dot"
-            :class="{ active: activeBanner === i }"
-            @click="activeBanner = i"
-          ></span>
-        </div>
+              <img :src="slide.imgUrl" :alt="slide.alt" class="banner-img" />
+            </a>
+          </SwiperSlide>
+        </Swiper>
       </section>
 
       <!-- Platform Selector -->
@@ -556,28 +552,20 @@ onMounted(() => {
 }
 
 .banner-track {
-  position: relative;
   width: 100%;
-  aspect-ratio: 325 / 125;
-  overflow: hidden;
   border-radius: 16px;
-}
-
-.banner-inner {
-  position: relative;
-  width: 100%;
-  height: 100%;
+  overflow: hidden;
+  padding-bottom: 30px; /* Space for pagination */
 }
 
 .banner-slide {
-  position: absolute;
-  inset: 0;
+  width: 100%;
+  height: auto;
 }
 
 .banner-link {
   display: block;
   width: 100%;
-  height: 100%;
   border-radius: 16px;
   overflow: hidden;
   text-decoration: none;
@@ -585,8 +573,8 @@ onMounted(() => {
 
 .banner-img {
   width: 100%;
-  height: 100%;
-  object-fit: fill;
+  height: auto;
+  object-fit: cover;
   display: block;
   border-radius: 16px;
   transition: opacity 0.2s ease;
@@ -596,43 +584,19 @@ onMounted(() => {
   opacity: 0.92;
 }
 
-/* Banner transition */
-.banner-fade-enter-active,
-.banner-fade-leave-active {
-  transition:
-    opacity 0.5s ease,
-    transform 0.5s ease;
-  position: absolute;
-  width: 100%;
-}
-.banner-fade-enter-from {
-  opacity: 0;
-  transform: translateX(30px);
-}
-.banner-fade-leave-to {
-  opacity: 0;
-  transform: translateX(-30px);
-}
-
-.banner-dots {
-  display: flex;
-  justify-content: center;
-  gap: 6px;
-  margin-top: 10px;
-}
-
-.dot {
+/* Override Swiper Pagination Dots */
+:deep(.swiper-pagination-bullet) {
   width: 6px;
   height: 6px;
-  border-radius: 100px;
   background: var(--card-border);
-  cursor: pointer;
+  opacity: 1;
   transition: all 0.25s ease;
 }
 
-.dot.active {
+:deep(.swiper-pagination-bullet-active) {
   background: var(--primary);
   width: 20px;
+  border-radius: 100px;
 }
 
 /* ── Platforms ───────────────────────────── */
