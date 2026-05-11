@@ -18,6 +18,7 @@ const platforms = [
   { id: "tiktok", name: "TikTok", icon: "fa-brands fa-tiktok" },
   { id: "facebook", name: "Facebook", icon: "fa-brands fa-facebook" },
   { id: "youtube", name: "YouTube", icon: "fa-brands fa-youtube" },
+  { id: "threads", name: "Threads", icon: "fa-brands fa-threads" },
 ];
 
 const selectedPlatform = ref("instagram");
@@ -34,6 +35,8 @@ watch(url, (newUrl) => {
     selectedPlatform.value = "facebook";
   } else if (/youtube\.com/i.test(lowerUrl) || /youtu\.be/i.test(lowerUrl)) {
     selectedPlatform.value = "youtube";
+  } else if (/threads\.(net|com)/i.test(lowerUrl)) {
+    selectedPlatform.value = "threads";
   }
 });
 
@@ -170,36 +173,6 @@ const swiperModules = [Autoplay, Pagination];
           <strong>Facebook</strong>, dan <strong>YouTube</strong> dengan mudah
           tanpa login, tanpa watermark.
         </p>
-      </section>
-
-      <!-- Banner Slider -->
-      <section
-        class="banner-slider animate-fade-in"
-        style="animation-delay: 0.1s"
-      >
-        <Swiper
-          :modules="swiperModules"
-          :slides-per-view="1"
-          :loop="true"
-          :autoplay="{ delay: 3000, disableOnInteraction: false }"
-          :pagination="{ clickable: true }"
-          class="banner-track"
-        >
-          <SwiperSlide
-            v-for="slide in bannerSlides"
-            :key="slide.id"
-            class="banner-slide"
-          >
-            <a
-              :href="slide.link"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="banner-link"
-            >
-              <img :src="slide.imgUrl" :alt="slide.alt" class="banner-img" />
-            </a>
-          </SwiperSlide>
-        </Swiper>
       </section>
 
       <!-- Platform Selector -->
@@ -343,6 +316,36 @@ const swiperModules = [Autoplay, Pagination];
             </a>
           </div>
         </div>
+      </section>
+
+      <!-- Banner Slider -->
+      <section
+        class="banner-slider animate-fade-in"
+        style="animation-delay: 0.2s"
+      >
+        <Swiper
+          :modules="swiperModules"
+          :slides-per-view="1"
+          :loop="true"
+          :autoplay="{ delay: 3000, disableOnInteraction: false }"
+          :pagination="{ clickable: true }"
+          class="banner-track"
+        >
+          <SwiperSlide
+            v-for="slide in bannerSlides"
+            :key="slide.id"
+            class="banner-slide"
+          >
+            <a
+              :href="slide.link"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="banner-link"
+            >
+              <img :src="slide.imgUrl" :alt="slide.alt" class="banner-img" />
+            </a>
+          </SwiperSlide>
+        </Swiper>
       </section>
 
       <!-- How To Use -->

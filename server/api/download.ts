@@ -1,5 +1,5 @@
 import { defineEventHandler, readBody } from 'h3'
-import { igdl, ttdl, fbdown, youtube } from 'btch-downloader'
+import { igdl, ttdl, fbdown, youtube, threads } from 'btch-downloader'
 
 export default defineEventHandler(async (event) => {
   try {
@@ -85,6 +85,22 @@ export default defineEventHandler(async (event) => {
       } catch (err) {
         console.error('YouTube Error:', err)
         return { status: false, message: 'Gagal memproses URL YouTube.' }
+      }
+    } else if (platform === 'threads') {
+      try {
+        const res = await threads(url)
+        if (res && res.status && res.result) {
+          const r = res.result
+          type = r.type === 'image' ? 'image' : 'video'
+          downloadUrl = r.video || r.image || r.download || ''
+          thumbnail = r.image || r.thumbnail || 'https://placehold.co/400x600/000000/ffffff?text=Threads'
+          title = 'Threads Media'
+        } else {
+          return { status: false, message: 'Tidak dapat menemukan media di link Threads tersebut.' }
+        }
+      } catch (err) {
+        console.error('Threads Error:', err)
+        return { status: false, message: 'Gagal memproses URL Threads.' }
       }
     } else {
       return { status: false, message: 'Platform tidak didukung' }

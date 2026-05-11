@@ -1,5 +1,5 @@
 // Preload btch-downloader pada server startup agar tidak ada cold-start delay saat request pertama
-import { igdl, ttdl, fbdown, youtube } from 'btch-downloader'
+import { igdl, ttdl, fbdown, youtube, threads } from 'btch-downloader'
 
 export default defineNitroPlugin(() => {
   // Warm-up: module sudah ter-require dari saat server start,
