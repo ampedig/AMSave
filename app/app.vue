@@ -88,6 +88,7 @@ const platformLabel = (id: string) => {
 // Banner Slider
 import banner1 from "~/assets/img/1.webp";
 import ogImage from "~/assets/img/og-imaga.webp";
+import logoImg from "~/assets/img/logo.png";
 
 const bannerSlides = [
   {
@@ -112,15 +113,15 @@ const bannerSlides = [
 const activeBanner = ref(0);
 
 useSeoMeta({
-  title: "AMSave - Unduh Media Tanpa Batas",
-  ogTitle: "AMSave - Unduh Media Tanpa Batas",
-  description: "Download video dan foto dari Instagram, TikTok, Facebook, dan YouTube secara gratis. Cepat, aman, dan tanpa watermark.",
-  ogDescription: "Download video dan foto dari Instagram, TikTok, Facebook, dan YouTube secara gratis. Cepat, aman, dan tanpa watermark.",
+  title: "AMSave - Download Video & Foto dari Instagram, TikTok, Facebook, YouTube & Threads",
+  ogTitle: "AMSave - Download Video & Foto dari Instagram, TikTok, Facebook, YouTube & Threads",
+  description: "Download video dan foto dari Instagram, TikTok, Facebook, YouTube, dan Threads secara gratis. Cepat, aman, tanpa watermark, dan tanpa perlu login.",
+  ogDescription: "Download video dan foto dari Instagram, TikTok, Facebook, YouTube, dan Threads secara gratis. Cepat, aman, tanpa watermark, dan tanpa perlu login.",
   ogImage: `https://amsave.ampedig.id${ogImage}`,
   ogUrl: "https://amsave.ampedig.id/",
   twitterCard: "summary_large_image",
-  twitterTitle: "AMSave - Unduh Media Tanpa Batas",
-  twitterDescription: "Download video dan foto dari Instagram, TikTok, Facebook, dan YouTube secara gratis. Cepat, aman, dan tanpa watermark.",
+  twitterTitle: "AMSave - Download Video & Foto dari Instagram, TikTok, Facebook, YouTube & Threads",
+  twitterDescription: "Download video dan foto dari Instagram, TikTok, Facebook, YouTube, dan Threads secara gratis. Cepat, aman, tanpa watermark, dan tanpa perlu login.",
   twitterImage: `https://amsave.ampedig.id${ogImage}`,
 });
 
@@ -144,9 +145,7 @@ const swiperModules = [Autoplay, Pagination];
     <!-- Header -->
     <header class="header animate-fade-in">
       <div class="logo-area">
-        <div class="logo-box">
-          <i class="fa-solid fa-cloud-arrow-down"></i>
-        </div>
+        <img :src="logoImg" alt="AMSave Logo" class="logo-img" />
         <div>
           <h1 class="title-gradient">AMSave</h1>
           <p class="tagline">Media Downloader</p>
@@ -167,10 +166,10 @@ const swiperModules = [Autoplay, Pagination];
           Unduh Media <span class="text-primary">Tanpa Batas</span>
         </h2>
         <p class="desc-text">
-          <strong>AMSave</strong> adalah platform download video & foto gratis
+          <strong>AMSave</strong> adalah platform download video &amp; foto gratis
           dari media sosial populer. Simpan konten dari
           <strong>Instagram</strong>, <strong>TikTok</strong>,
-          <strong>Facebook</strong>, dan <strong>YouTube</strong> dengan mudah
+          <strong>Facebook</strong>, <strong>YouTube</strong>, dan <strong>Threads</strong> dengan mudah
           tanpa login, tanpa watermark.
         </p>
       </section>
@@ -413,17 +412,11 @@ const swiperModules = [Autoplay, Pagination];
   gap: 12px;
 }
 
-.logo-box {
+.logo-img {
   width: 44px;
   height: 44px;
-  background: var(--primary);
-  border-radius: 14px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 20px;
-  color: white;
-  box-shadow: 0 4px 12px var(--primary-shadow);
+  border-radius: 12px;
+  object-fit: contain;
   flex-shrink: 0;
 }
 
