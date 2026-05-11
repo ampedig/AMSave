@@ -244,7 +244,17 @@ const swiperModules = [Autoplay, Pagination];
 
           <!-- Thumbnail -->
           <div class="thumbnail-wrapper">
+            <video
+              v-if="downloadResult.isVideoThumbnail"
+              :src="downloadResult.thumbnail"
+              autoplay
+              loop
+              muted
+              playsinline
+              class="preview-video"
+            ></video>
             <img
+              v-else
               :src="downloadResult.thumbnail"
               alt="Preview Media"
               loading="lazy"
@@ -702,7 +712,8 @@ const swiperModules = [Autoplay, Pagination];
   width: 100%;
 }
 
-.thumbnail-wrapper img {
+.thumbnail-wrapper img,
+.thumbnail-wrapper video {
   width: 100%;
   height: auto;
   display: block;

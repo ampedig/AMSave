@@ -18,6 +18,7 @@ export default defineEventHandler(async (event) => {
     let title = `${platform.charAt(0).toUpperCase() + platform.slice(1)} Media`
     let thumbnail = ''
     let type = 'video'
+    let isVideoThumbnail = false
 
     if (platform === 'instagram') {
       const res = await igdl(url)
@@ -93,7 +94,10 @@ export default defineEventHandler(async (event) => {
           const r = res.result
           type = r.type === 'image' ? 'image' : 'video'
           downloadUrl = r.video || r.image || r.download || ''
-          thumbnail = r.image || r.thumbnail || 'https://placehold.co/400x600/000000/ffffff?text=Threads'
+          thumbnail = r.image || r.thumbnail || r.video || 'https://placehold.co/400x600/000000/ffffff?text=Threads'
+          if (!r.image && !r.thumbnail && r.video) {
+            isVideoThumbnail = true
+          }
           title = 'Threads Media'
         } else {
           return { status: false, message: 'Tidak dapat menemukan media di link Threads tersebut.' }
@@ -115,6 +119,7 @@ export default defineEventHandler(async (event) => {
       data: {
         title,
         thumbnail,
+        isVideoThumbnail,
         downloadUrl,
         audioUrl,
         platform,
